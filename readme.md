@@ -2,7 +2,7 @@
 
 
 A Google App Script for automated crawling of other people's calendar to find keyword matched interesting events to publish to a shared calendar.
-For more information see [the blog article][medium.com].
+For more information see [blog on medium.com](https://medium.com/@amitmalhotra/how-i-tamed-a-sales-call-calendar-to-get-insights-into-customer-calls-as-a-product-manager-3af97c5472d5#.ll568i7q4).
 
 
 ## Getting Started
