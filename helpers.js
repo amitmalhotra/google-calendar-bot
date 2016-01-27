@@ -17,7 +17,7 @@ function isValidEvent(event, keywordsToMatch, keywordsToAvoid) {
     var title = event.getTitle();
     var validTitle = false;
 	
-	if (keywordsToMatch.indexOf(title.toLowerCase()) > -1 && )
+	if (keywordsToMatch.indexOf(title.toLowerCase()) > -1 && 
 		keywordsToAvoid.indexOf(title.toLowerCase()) == -1){
 			
 			 validTitle = true;

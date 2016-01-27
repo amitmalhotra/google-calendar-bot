@@ -101,69 +101,6 @@ function calendars() {
   
 }
 
-function addToCalendar(event, sharedCalendarId) {
-
-   var title = event.getTitle();
-   var startTime = event.getStartTime();
-   var endTime = event.getEndTime();
-   
-   // check if this event already copied. if so,skip it
-   
-   if(eventInCalendar(title, startTime, endTime, sharedCalendarId)){
-     Logger.log(title + ': event already added');
-     return;
-   }
-   
-   var desc = event.getDescription();
-   var location = event.getLocation();
-   var guestList = event.getGuestList(true);
-   
-   var guests = "Invitees:\n";
-   var urls = {};
-   
-   for (var p=0;p<guestList.length;p++){
-      var guest = guestList[p];
-      guests = guests + '\n ' + guest.getEmail();
-      var url = getDomainFromEmail(guest.getEmail(), domainToFilterOut);
-      if (url.length>0){
-         urls[url]=url;
-      }
-   }
-   
-   var additionalInfo = "";
-   var keys = Object.keys(urls);
-   for (var i=0;i<keys.length;i++){
-        var key = keys[i];
-        additionalInfo += key + "\n";
-        
-    }
-    
-   var description = desc + '\n ' + additionalInfo + '\n ' + guests;
-   
-   var calendar = customerCallsCalendar(sharedCalendarId);
-   var event = calendar.createEvent(title,
-     startTime,
-     endTime,
-     {location: location, 
-      description: description
-     });
-   event.setTag("type", "customerCall");
- 
-  
-
-}
-
-
-function eventInCalendar(title, startTime, endTime, sharedCalendarId){
-
-   var calendar = customerCallsCalendar(sharedCalendarId);
-   var events = calendar.getEvents(startTime, endTime,
-     {search: title});
-     
-   return (events.length>0) ;
-
-}
-
 // Weekly Email Summary Job 
 // Set the appropriate variables
 // recepients - this is who the emails will go out to (comma separated email addresses)
@@ -238,6 +175,69 @@ function customerCallSummary(){
                       name: 'Customer Calls',
                       htmlBody: htmlBody
                     });
+
+}
+
+function addToCalendar(event, sharedCalendarId) {
+
+   var title = event.getTitle();
+   var startTime = event.getStartTime();
+   var endTime = event.getEndTime();
+   
+   // check if this event already copied. if so,skip it
+   
+   if(eventInCalendar(title, startTime, endTime, sharedCalendarId)){
+     Logger.log(title + ': event already added');
+     return;
+   }
+   
+   var desc = event.getDescription();
+   var location = event.getLocation();
+   var guestList = event.getGuestList(true);
+   
+   var guests = "Invitees:\n";
+   var urls = {};
+   
+   for (var p=0;p<guestList.length;p++){
+      var guest = guestList[p];
+      guests = guests + '\n ' + guest.getEmail();
+      var url = getDomainFromEmail(guest.getEmail(), domainToFilterOut);
+      if (url.length>0){
+         urls[url]=url;
+      }
+   }
+   
+   var additionalInfo = "";
+   var keys = Object.keys(urls);
+   for (var i=0;i<keys.length;i++){
+        var key = keys[i];
+        additionalInfo += key + "\n";
+        
+    }
+    
+   var description = desc + '\n ' + additionalInfo + '\n ' + guests;
+   
+   var calendar = customerCallsCalendar(sharedCalendarId);
+   var event = calendar.createEvent(title,
+     startTime,
+     endTime,
+     {location: location, 
+      description: description
+     });
+   event.setTag("type", "customerCall");
+ 
+  
+
+}
+
+
+function eventInCalendar(title, startTime, endTime, sharedCalendarId){
+
+   var calendar = customerCallsCalendar(sharedCalendarId);
+   var events = calendar.getEvents(startTime, endTime,
+     {search: title});
+     
+   return (events.length>0) ;
 
 }
 
