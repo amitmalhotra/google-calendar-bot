@@ -1,11 +1,37 @@
+// Calendar is the function to schedule to run every hour
+// Set the appropriate variables to configure the script
+// calendarsToFollow - list of emails of other's calendar that you want to crawl (you must have access to these calendars and have added them in your Google Calendar account)
+// keywordsToMatch - list of keywords to watch for the events of interest
+// keyworsToAvoid - list of keywords to filter out events for 
+// sharedCalendarId - this is the google calendar id of where the crawled events are added to 
+// domainToFilterOut = this is your domain to filter out when creating quick web links for guests website
+
 function calendars() {
  
      var calendarsToFollow = [
-                              abc@yourdomain.com,
-                              def@yourdomain.com,
-                              xyz@yourdomain.com
+                              "abc@yourdomain.com",
+                              "def@yourdomain.com",
+                              "xyz@yourdomain.com"
                             ];                  
    
+     var keywordsToMatch = [
+		 					"demo",
+							"prototype",
+		 					"technical validation",
+		 					"requirements",
+		 					"review"
+						];
+	 
+	 var keywordsToAvoid = [
+	 						"contract",
+		 					"negotiation",
+		 	 				"price review",
+		 					"pricing review"
+	 					];
+	
+	 var sharedCalendarId = "yourdomain_nuvfvvcvsecavjoponppi93sh8@group.calendar.google.com";
+	 var domainToFilterOut = "yourdomain.com";
+	 
      var eventsToCopy = {};
      
      // if running on sat or sunday, get the next monday
@@ -67,7 +93,7 @@ function calendars() {
         var key = keys[i];
         
         var eventToCopy = eventsToCopy[key];
-        addToCalendar(eventToCopy);
+        addToCalendar(eventToCopy, sharedCalendarId);
         
     }
    
@@ -75,7 +101,7 @@ function calendars() {
   
 }
 
-function addToCalendar(event) {
+function addToCalendar(event, sharedCalendarId) {
 
    var title = event.getTitle();
    var startTime = event.getStartTime();
@@ -83,7 +109,7 @@ function addToCalendar(event) {
    
    // check if this event already copied. if so,skip it
    
-   if(eventInCalendar(title, startTime, endTime)){
+   if(eventInCalendar(title, startTime, endTime, sharedCalendarId)){
      Logger.log(title + ': event already added');
      return;
    }
@@ -98,7 +124,7 @@ function addToCalendar(event) {
    for (var p=0;p<guestList.length;p++){
       var guest = guestList[p];
       guests = guests + '\n ' + guest.getEmail();
-      var url = getDomainFromEmail(guest.getEmail());
+      var url = getDomainFromEmail(guest.getEmail(), domainToFilterOut);
       if (url.length>0){
          urls[url]=url;
       }
@@ -114,7 +140,7 @@ function addToCalendar(event) {
     
    var description = desc + '\n ' + additionalInfo + '\n ' + guests;
    
-   var calendar = customerCallsCalendar();
+   var calendar = customerCallsCalendar(sharedCalendarId);
    var event = calendar.createEvent(title,
      startTime,
      endTime,
@@ -128,9 +154,9 @@ function addToCalendar(event) {
 }
 
 
-function eventInCalendar(title, startTime, endTime){
+function eventInCalendar(title, startTime, endTime, sharedCalendarId){
 
-   var calendar = customerCallsCalendar();
+   var calendar = customerCallsCalendar(sharedCalendarId);
    var events = calendar.getEvents(startTime, endTime,
      {search: title});
      
@@ -138,11 +164,23 @@ function eventInCalendar(title, startTime, endTime){
 
 }
 
+// Weekly Email Summary Job 
+// Set the appropriate variables
+// recepients - this is who the emails will go out to (comma separated email addresses)
+// tagLine - what appears in poweredBy
+// title - email header
+// subject - email subject
+// sharedCalendarId - the shared calendar id where the events are added. 
 
 function customerCallSummary(){
 
 
-   var recepients = 'you@yourdomain.com';
+   var recepients = 'you@yourdomain.com, yourboss@yourdomain.com';
+   var title = "Upcoming Week Call Roundup";
+   var subject = 'Customer Calls: Upcoming Week';
+   var tagLine = "Awesome scripts";
+   var sharedCalendarId = "yourdomain_nuvfvvcvsecavjoponppi93sh8@group.calendar.google.com";
+   
    var callLiteral = 'Calls';
    
    var mainTemplate = getTopLevelTemplate();
@@ -150,15 +188,15 @@ function customerCallSummary(){
    
    // get this weeks events marked with type = customerCall
    
-   var events = getCustomerCallEvents();
+   var events = getCustomerCallEvents(sharedCalendarId);
    
    //weekly stuff
    weeklyTemplate.callCount = events.length;
    weeklyTemplate.callLiteral = callLiteral;
    weeklyTemplate.callListHtml = '';
    
-   mainTemplate.mainTitle = 'Upcoming Week Roundup';
-   mainTemplate.poweredBy = 'Your TagLine';
+   mainTemplate.mainTitle = title;
+   mainTemplate.poweredBy = tagLine;
    mainTemplate.weeklySummary = weeklyTemplate.evaluate().getContent();
    
    var trContent = '';
@@ -191,7 +229,7 @@ function customerCallSummary(){
    // for testing purposes.. uncomment
    // var blob = Utilities.newBlob(htmlBody, 'text/html', 'report.html');
    
-   var subject = 'Customer Calls: Upcoming Week';
+   
    
    MailApp.sendEmail(recepients,
                     subject,
@@ -203,7 +241,7 @@ function customerCallSummary(){
 
 }
 
-function getCustomerCallEvents(){
+function getCustomerCallEvents(sharedCalendarId){
 
   var startDate = Date.today().next().monday();
   var endDate = Date.today().next().saturday();
@@ -214,13 +252,13 @@ function getCustomerCallEvents(){
       startDate = Date.today().previous().monday();
   }
   
-  return getCustomerCallEventsForDates(startDate, endDate);
+  return getCustomerCallEventsForDates(startDate, endDate, sharedCalendarId);
 
 }
 
-function getCustomerCallEventsForDates(startDate, endDate){
+function getCustomerCallEventsForDates(startDate, endDate, sharedCalendarId){
 
-  var calendar = customerCallsCalendar();
+  var calendar = customerCallsCalendar(sharedCalendarId);
   var events = calendar.getEvents(startDate, endDate);
   var customerCallEvents = [];
   
@@ -238,9 +276,8 @@ function getCustomerCallEventsForDates(startDate, endDate){
 }
 
 
-function customerCallsCalendar(){
+function customerCallsCalendar(calendarId){
 
-  var calendarId = "yourdomain_nuvfvvcvsecavjoponppi93sh8@group.calendar.google.com";
   var calendar = CalendarApp.getCalendarById(calendarId);
   return calendar;
 

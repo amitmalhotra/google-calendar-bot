@@ -1,7 +1,7 @@
-function getDomainFromEmail(email) {
+function getDomainFromEmail(email, domainToFilterOut) {
   
   var domain = email.replace(/.*@/, "");
-  if (domain.toLowerCase() == "yourdomain.com"){  // filter out your own domains
+  if (domain.toLowerCase() == domainToFilterOut){  // filter out your own domains
      return "";
   }
   
@@ -12,18 +12,17 @@ function getDomainFromEmail(email) {
 // This function relies on keyword matching
 // Pick keywords that you want to watch
 
-function isValidEvent(event) {
+function isValidEvent(event, keywordsToMatch, keywordsToAvoid) {
 
     var title = event.getTitle();
     var validTitle = false;
-    if ((title.toLowerCase().indexOf("demo") > -1 || title.toLowerCase().indexOf("technical validation") > -1 ||
-        title.toLowerCase().indexOf("prototype") > -1 || title.toLowerCase().indexOf("requirements") > -1 ||
-        title.toLowerCase().indexOf("review") > -1) && (title.toLowerCase().indexOf("contract") == -1 &&
-        title.toLowerCase().indexOf("pricing") == -1)
-       ) {
-         
-          validTitle = true;
-       }
+	
+	if (keywordsToMatch.indexOf(title.toLowerCase()) > -1 && )
+		keywordsToAvoid.indexOf(title.toLowerCase()) == -1){
+			
+			 validTitle = true;
+			
+	}
     
     var guestList = event.getGuestList(true);
     var customerDomainCount = 0;
